@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Google Maps - Neighborhood Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <style>
+      #map {
+        height: 100%;
+      }
+      .map-card {
+        height: 650px!important;
+      }
+      .card {
+        border-radius: 10px;
+      }
+      #pano {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+</head>
+<body class="grey darken-4">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col s12 l3 m12">
+        <div class="card z-depth-2">
+          <div class="card-content">
+            <h2 class="card-title">Neighborhood Map</h2>
+            <div class="col s12 m12 l12">
+              <div class="chip">
+                <img src="img/maps.png" alt="Maps API Logo">
+                Google Maps API
+              </div>
+            </div>
+            <div class="col s12 m12 l12">
+              <div class="chip">
+                <img src="img/udacity.png" alt="Udacity Logo">
+                Udacity Project
+              </div>
+            </div>
+            <div class="col s12 m12 l12">
+              <div class="chip">
+                <img src="img/icon.png" alt="Knockout Logo">
+                Knockout
+              </div>
+            </div>
+            <div class="col s12 m12 l12">
+              <div class="chip">
+                <img src="img/logo.png" alt="Renan Lopes Logo">
+                Built by Renan Lopes
+              </div>
+            </div>
+            <div class="input-field col s12">
+              <input class="col s10 m10 l10" placeholder="Search Places" id="search-input" type="text" class="validate">
+              <button class="btn-floating waves-effect waves-light green lighten-1" data-bind="click: ViewModelController.filterMarkers" type="button"><i class="material-icons left">search</i></button>
+            </div>
+            <div class="row">
+              <ul class="collection" data-bind="foreach: ViewModelController.markersList">
+                <li class="collection-item" data-bind="text: name"></li>
+              </ul>
+            </div>
+            <div class="row"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col s12 l9 m12">
+        <div class="card z-depth-2">
+          <div class="card-content map-card">
+            <div id="map"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/knockout-3.4.2.js"></script>
+  <script src="js/map-style.js"></script>
+  <script src="js/google-maps-api.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKdLkO_bzD-BmrljJwk9pkPlcEtcm0itQ&libraries=places,drawing,geometry&v=3&callback=initMap"></script>
+</body>
+</html>
