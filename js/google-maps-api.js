@@ -18,6 +18,28 @@
   let locations = 
     [
       {
+        title : "Serventec", 
+        address : "Rua Joaquim Nabuco - Genaro, Dias d'Ávila - BA, 42850-000",
+        city : "Dias d'Ávila",
+        state : "BA",
+        country : "Brazil",
+        location : {
+          lat : -12.613008,  
+          lng : -38.292567
+        }
+      },
+      {
+        title : "Serventec Válvulas", 
+        address : "Rua Joaquim Nabuco - Genaro, Dias d'Ávila - BA",
+        city : "Dias d'Ávila",
+        state : "BA",
+        country : "Brazil",
+        location : {
+          lat : -12.613242, 
+          lng : -38.292531
+        }
+      },
+      {
         title : "D'Marco Pizzaria", 
         address : "Av. Pasteur, 202 - Centro, Dias d'Ávila - BA, 42850-000",
         city : "Dias d'Ávila",
@@ -93,6 +115,24 @@ function initMap() {
     };
 
   /**
+   * Function to show the specific list of markers of the map
+   * Função para mostrar lista de marcadores do mapa
+   * @param {array} markers
+   */
+
+    MapController.filterMarkers = (markers) => {
+      for (let i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+        ViewModelController.markersList.push(markers[i]);
+        ViewModelController.setMarkerAnimation(markers[i]);
+      }
+    };
+
+	  MapController.bounce = function(marker) {
+		  MapController.populateInfoWindow(marker, MapController.largeInfoWindow);
+	  };
+
+  /**
    * Creating info window
    * Criando janela de informações
   */
@@ -115,9 +155,11 @@ function initMap() {
 
     MapController.populateInfoWindow = (marker, infowindow) => {
       if(infowindow.marker != marker) {
+        let wiki = ViewModelController.getWiki(marker.city);
         infowindow.marker = marker;
         let infoContent = '<div><h6 id="marker-name">' + marker.name + '</h6>' +
-                          '<p id="marker-address">' + marker.address + '</p>';
+                          '<p id="marker-address">' + marker.address + '</p>'+
+                          wiki;
 
         infowindow.setContent(infoContent);
         infowindow.open(map, marker);
@@ -143,6 +185,7 @@ function initMap() {
           let position = locations[i].location;
           let name = locations[i].title;
           let address = locations[i].address;
+          let city = locations[i].city;
 
           let marker = new google.maps.Marker({
             'map' : map,
@@ -150,7 +193,8 @@ function initMap() {
             'name' : name,
             'address' : address,
             'animation' : google.maps.Animation.DROP,
-            'id' : i
+            'id' : i,
+            'city' : city
           });
           marker.addListener('click', 
             function() {
@@ -158,6 +202,7 @@ function initMap() {
             }
           );
           ViewModelController.markersList.push(marker);
+          ViewModelController.markersModel.push(marker);
           MapController.bounds.extend(marker.position);
         };  // End Loop / Fim do Loop
     };
@@ -182,6 +227,8 @@ function initMap() {
 function ViewModel () {
 
   ViewModelController.markersList = ko.observableArray([]);
+  ViewModelController.markersModel  = ko.observableArray([]);
+  searchInput = ko.observable();
 
   /**
    * Function to add animation in the marker
@@ -195,22 +242,48 @@ function ViewModel () {
     };
 
   ViewModelController.filterMarkers = () => {
-    let filteredMarkers = ko.observableArray([]);
-    let searchString = document.getElementById('search-input').value.toLowerCase();
-    let len = locations.length;
-
+    ViewModelController.filteredMarkers = ko.observableArray([]);
+    let searchString = searchInput().toLowerCase();
+    let len = ViewModelController.markersModel().length;
     for (let i = 0; i < len; i++) {
-      let markerName = locations[i].title.toLowerCase();
-      let markerAddress = locations[i].address.toLowerCase();
+      let markerName = ViewModelController.markersModel()[i].name.toLowerCase();
+      let markerAddress = ViewModelController.markersModel()[i].address.toLowerCase();
       if (markerName.indexOf(searchString) > -1 ||
       markerAddress.indexOf(searchString) > -1 ) {
-        filteredMarkers.push(locations[i]);
+        ViewModelController.filteredMarkers.push(ViewModelController.markersModel()[i]);
       }
     };
-        MapController.hideMarkers(ViewModelController.markersList());
+        MapController.hideMarkers(ViewModelController.markersModel());
         ViewModelController.markersList.removeAll();
-        MapController.createMarker(filteredMarkers());
+        MapController.filterMarkers(ViewModelController.filteredMarkers());
+        
   };
+  
+ViewModelController.list = ko.observableArray([]);
+  ViewModelController.getWiki  = (markerCity) => {
+    var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&search=" + markerCity + "&format=json&callback=wikiCallback";
+
+    var timeoutWiki = setTimeout(function () {
+        $wikiElem.text("Sorry, we failed to get wikipedia articles (Timeout Error) please check your internet connection and try again.");
+    }, 8000);
+
+    $.ajax({
+        url: wikiUrl,
+        dataType: "jsonp",
+        success: function (response) {
+            var articleList = response[1];
+            for (var i = 0; i < articleList.length; i++) {
+                articleStr = articleList[i];
+                var url = "http://en.wikipedia.org/wiki/" + articleStr;
+                ViewModelController.list('<li><a href="' + url + '">About City: ' + articleStr + '</a></li>');
+            };
+
+            clearTimeout(timeoutWiki);
+        }
+    });
+    return ViewModelController.list();
+}
+
 }
 
 ko.applyBindings(new ViewModel());

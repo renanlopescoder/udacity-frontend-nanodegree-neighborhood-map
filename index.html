@@ -56,12 +56,12 @@
               </div>
             </div>
             <div class="input-field col s12">
-              <input class="col s10 m10 l10" placeholder="Search Places" id="search-input" type="text" class="validate">
+              <input class="col s10 m10 l10" placeholder="Search Places" id="search-input" data-bind="value: searchInput" type="text" class="validate">
               <button class="btn-floating waves-effect waves-light green lighten-1" data-bind="click: ViewModelController.filterMarkers" type="button"><i class="material-icons left">search</i></button>
             </div>
             <div class="row">
               <ul class="collection" data-bind="foreach: ViewModelController.markersList">
-                <li class="collection-item" data-bind="text: name"></li>
+                <li class="collection-item" data-bind="text: name, click: MapController.bounce"></li>
               </ul>
             </div>
             <div class="row"></div>
@@ -77,6 +77,8 @@
       </div>
     </div>
   </div>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="js/knockout-3.4.2.js"></script>
   <script src="js/map-style.js"></script>
   <script src="js/google-maps-api.js"></script>
