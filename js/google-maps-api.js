@@ -286,6 +286,10 @@ ViewModelController.list = ko.observableArray([]);
 
 }
 
+mapError = () => {
+  alert("Error to load the MAP");
+};
+
 ko.applyBindings(new ViewModel());
 
 
