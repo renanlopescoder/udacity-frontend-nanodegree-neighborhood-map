@@ -155,15 +155,16 @@ function initMap() {
 
     MapController.populateInfoWindow = (marker, infowindow) => {
       if(infowindow.marker != marker) {
-        let wiki = ViewModelController.getWiki(marker.city);
-        infowindow.marker = marker;
-        let infoContent = '<div><h6 id="marker-name">' + marker.name + '</h6>' +
-                          '<p id="marker-address">' + marker.address + '</p>'+
-                          wiki;
+        ViewModelController.getWiki(marker.city, (contents) =>{
+          infowindow.marker = marker;
+          let infoContent = '<div><h6 id="marker-name">' + marker.name + '</h6>' +
+                            '<p id="marker-address">' + marker.address + '</p>'+
+                            contents;
 
-        infowindow.setContent(infoContent);
-        infowindow.open(map, marker);
-        ViewModelController.setMarkerAnimation(marker);
+          infowindow.setContent(infoContent);
+          infowindow.open(map, marker);
+          ViewModelController.setMarkerAnimation(marker);
+        });
       }
     };
 
@@ -259,14 +260,14 @@ function ViewModel () {
         
   };
   
-ViewModelController.list = ko.observableArray([]);
-  ViewModelController.getWiki  = (markerCity) => {
+  ViewModelController.getWiki  = (markerCity, callback) => {
     var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&search=" + markerCity + "&format=json&callback=wikiCallback";
 
     var timeoutWiki = setTimeout(function () {
-        $wikiElem.text("Sorry, we failed to get wikipedia articles (Timeout Error) please check your internet connection and try again.");
+        alert("Sorry, we failed to get wikipedia articles (Timeout Error) please check your internet connection and try again.");
     }, 8000);
 
+    var contents;
     $.ajax({
         url: wikiUrl,
         dataType: "jsonp",
@@ -275,18 +276,17 @@ ViewModelController.list = ko.observableArray([]);
             for (var i = 0; i < articleList.length; i++) {
                 articleStr = articleList[i];
                 var url = "http://en.wikipedia.org/wiki/" + articleStr;
-                ViewModelController.list('<li><a href="' + url + '">About City: ' + articleStr + '</a></li>');
+                contents = '<li><a href="' + url + '">About City: ' + articleStr + '</a></li>';
             };
-
+            callback(contents);
             clearTimeout(timeoutWiki);
         }
     });
-    return ViewModelController.list();
 }
 
 }
 
-mapError = () => {
+const mapError = () => {
   alert("Error to load the MAP");
 };
 
