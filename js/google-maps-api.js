@@ -21,6 +21,7 @@
         title : "Serventec", 
         address : "Rua Joaquim Nabuco - Genaro, Dias d'Ávila - BA, 42850-000",
         city : "Dias d'Ávila",
+        type : "Industry",
         state : "BA",
         country : "Brazil",
         location : {
@@ -29,20 +30,22 @@
         }
       },
       {
-        title : "Serventec Válvulas", 
-        address : "Rua Joaquim Nabuco - Genaro, Dias d'Ávila - BA",
+        title : "Hospital Promater", 
+        address : "Rua Lauro de Freitas, 1125, Centro - Conjunto Hab., Dias d'Ávila - BA, 42850-000",
         city : "Dias d'Ávila",
+        type : "Hospital",
         state : "BA",
         country : "Brazil",
         location : {
-          lat : -12.613242, 
-          lng : -38.292531
+          lat : -12.614263, 
+          lng : -38.297401
         }
       },
       {
         title : "D'Marco Pizzaria", 
         address : "Av. Pasteur, 202 - Centro, Dias d'Ávila - BA, 42850-000",
         city : "Dias d'Ávila",
+        type : "Pizza",
         state : "BA",
         country : "Brazil",
         location : {
@@ -51,20 +54,22 @@
         }
       },
       {
-        title : "Tarantella Pizzaria", 
-        address : "R. Heitor Dias, 65 - Centro, Dias d'Ávila - BA, 42850-000",
+        title : "Centro Educacional Piaget", 
+        address : "R. Padre Camilo Torrend, 131 - Centro, Dias d'Ávila - BA, 42850-000",
         city : "Dias d'Ávila",
+        type : "School",
         state : "BA",
         country : "Brazil",
         location : {
-          lat : -12.609877,
-          lng : -38.304535 
+          lat : -12.609544, 
+          lng : -38.303054 
         }
       },
       {
         title : "Macaxeira", 
         address : "R. da Mangueira, 213 - Parque de Dias Davila, Dias d'Ávila - BA, 42850-000",
         city : "Dias d'Ávila",
+        type : "Restaurant",
         state : "BA",
         country : "Brazil",
         location : {
@@ -155,7 +160,7 @@ function initMap() {
 
     MapController.populateInfoWindow = (marker, infowindow) => {
       if(infowindow.marker != marker) {
-        ViewModelController.getWiki(marker.city, (contents) =>{
+        ViewModelController.getWiki(marker.type, (contents) =>{
           infowindow.marker = marker;
           let infoContent = '<div><h6 id="marker-name">' + marker.name + '</h6>' +
                             '<p id="marker-address">' + marker.address + '</p>'+
@@ -186,7 +191,7 @@ function initMap() {
           let position = locations[i].location;
           let name = locations[i].title;
           let address = locations[i].address;
-          let city = locations[i].city;
+          let type = locations[i].type;
 
           let marker = new google.maps.Marker({
             'map' : map,
@@ -195,7 +200,7 @@ function initMap() {
             'address' : address,
             'animation' : google.maps.Animation.DROP,
             'id' : i,
-            'city' : city
+            'type' : type,
           });
           marker.addListener('click', 
             function() {
@@ -260,8 +265,8 @@ function ViewModel () {
         
   };
   
-  ViewModelController.getWiki  = (markerCity, callback) => {
-    var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&search=" + markerCity + "&format=json&callback=wikiCallback";
+  ViewModelController.getWiki  = (markerType, callback) => {
+    var wikiUrl = "http://en.wikipedia.org/w/api.php?action=opensearch&search=" + markerType + "&format=json&callback=wikiCallback";
 
     var timeoutWiki = setTimeout(function () {
         alert("Sorry, we failed to get wikipedia articles (Timeout Error) please check your internet connection and try again.");
@@ -272,12 +277,9 @@ function ViewModel () {
         url: wikiUrl,
         dataType: "jsonp",
         success: function (response) {
-            var articleList = response[1];
-            for (var i = 0; i < articleList.length; i++) {
-                articleStr = articleList[i];
+                articleStr = response[0];
                 var url = "http://en.wikipedia.org/wiki/" + articleStr;
-                contents = '<li><a href="' + url + '">About City: ' + articleStr + '</a></li>';
-            };
+                contents = '<li><a href="' + url + '">About: ' + articleStr + '</a></li>';
             callback(contents);
             clearTimeout(timeoutWiki);
         }
